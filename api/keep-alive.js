@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
 
   try {
     const response = await fetch(
-      `${url}/rest/v1/users?select=*&limit=1`,
+      `${url}/rest/v1/users?select=*&limit=2`, // ← جبنا أول 2 سطر بدل 1 عشان تشوف بيانات أكتر
       {
         method: "GET",
         headers: {
@@ -30,13 +30,19 @@ module.exports = async (req, res) => {
 
     const data = await response.json();
 
+    // نرجّع البيانات نفسها (أول سطرين أو مصفوفة فارغة)
     res.status(200).json({
       status: "alive",
       ping_time: new Date().toISOString(),
-      rows: data.length,
-      message: data.length === 0 ? "الجدول موجود لكنه فاضي" : "Ping ناجح"
+      data_returned: data,              // ← البيانات الحقيقية هنا
+      row_count: data.length,
+      message: data.length === 0 
+        ? "الجدول موجود لكنه فاضي (كويس للـ keep-alive)" 
+        : `تم جلب ${data.length} سطر/سطور بنجاح`
     });
   } catch (err) {
-    res.status(500).json({ error: err.message || "خطأ غير متوقع" });
+    res.status(500).json({ 
+      error: err.message || "خطأ غير متوقع" 
+    });
   }
 };
